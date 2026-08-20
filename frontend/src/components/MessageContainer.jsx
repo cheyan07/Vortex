@@ -1,26 +1,44 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Messages from "./Messages.jsx";
 import SendInput from "./SendInput.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedUser } from "../redux/userSlice";
 
 const MessageContainer = () => {
-  return (
-    <div className="md:min-w-[750px] flex flex-col">
-      <div className="flex gap-2 items-center bg-zinc-800 text-white px-5 py-2 mb-2">
-        <div className="avatar online">
-          <div className="w-12 rounded-full">
-            <img src="https://tinyurl.com/5b9a9hrv" alt="user-profile" />
-          </div>
-        </div>
-        <div className="flex flex-col flex-1">
-          <div className="flex justify-between gap-2">
-            <p>Chetan Patil</p>
-          </div>
-        </div>
-      </div>
+  const { authUser, selectedUser } = useSelector((store) => store.user);
+  const dispatch = useDispatch();
 
-      <Messages/>
-      <SendInput/>
-    </div>
+  useEffect(() => {
+    return () => dispatch(setSelectedUser(null));
+  }, []);
+  return (
+    <>
+      {selectedUser !== null ? (
+        <div className="md:min-w-[550px] flex flex-col">
+          <div className="flex gap-2 items-center bg-zinc-800 text-white px-4 py-2 mb-2">
+            <div className="avatar online">
+              <div className="w-12 rounded-full">
+                <img src={selectedUser?.profilePhoto} alt="user-profile" />
+              </div>
+            </div>
+            <div className="flex flex-col flex-1">
+              <div className="flex justify-between gap-2">
+                <p>{selectedUser?.fullName}</p>
+              </div>
+            </div>
+          </div>
+          <Messages />
+          <SendInput />
+        </div>
+      ) : (
+        <div className="md:min-w-[550px] flex flex-col justify-center items-center">
+          <h1 className="text-4xl text-white font-bold">
+            Hi,{authUser?.fullName}{" "}
+          </h1>
+          <h1 className="text-2xl text-white">Let's start conversation</h1>
+        </div>
+      )}
+    </>
   );
 };
 
