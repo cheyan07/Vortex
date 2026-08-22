@@ -1,22 +1,17 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Messages from "./Messages.jsx";
 import SendInput from "./SendInput.jsx";
-import { useDispatch, useSelector } from "react-redux";
-import { setSelectedUser } from "../redux/userSlice";
+import { useSelector } from "react-redux";
 
 const MessageContainer = () => {
-  const { authUser, selectedUser } = useSelector((store) => store.user);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    return () => dispatch(setSelectedUser(null));
-  }, []);
+  const { authUser, selectedUser, onlineUsers } = useSelector((store) => store.user);
+  const isOnline = onlineUsers?.includes(selectedUser?._id);
   return (
     <>
       {selectedUser !== null ? (
         <div className="md:min-w-[550px] flex flex-col">
           <div className="flex gap-2 items-center bg-zinc-800 text-white px-4 py-2 mb-2">
-            <div className="avatar online">
+            <div className={`avatar ${isOnline?'online' : ''}`}>
               <div className="w-12 rounded-full">
                 <img src={selectedUser?.profilePhoto} alt="user-profile" />
               </div>
@@ -33,9 +28,9 @@ const MessageContainer = () => {
       ) : (
         <div className="md:min-w-[550px] flex flex-col justify-center items-center">
           <h1 className="text-4xl text-white font-bold">
-            Hi,{authUser?.fullName}{" "}
+            Hi, {" "}{authUser?.fullName}!{" "}
           </h1>
-          <h1 className="text-2xl text-white">Let's start conversation</h1>
+          <h1 className="text-2xl text-white">Let's start the conversation.</h1>
         </div>
       )}
     </>

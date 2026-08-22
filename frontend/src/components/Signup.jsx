@@ -22,8 +22,9 @@ const Signup = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
       const res = await axios.post(
-        `http://localhost:8080/api/v1/user/register`,
+        `${apiUrl}/api/v1/user/register`,
         user,
         {
           headers: {
@@ -32,12 +33,12 @@ const Signup = () => {
           withCredentials: true,
         },
       );
-      if(res.data.success){
+      if(res.data?.success){
         navigate("/login");
-        toast.success(res.data.message);
+        toast.success(res.data?.message || "Registered successfully!");
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
       console.log(error);
     }
 

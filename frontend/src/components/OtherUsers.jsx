@@ -8,9 +8,9 @@ const OtherUsers = () => {
 
   const {otherUsers}=useSelector(store=>store.user);
 
-  if(!otherUsers){
-    return;
-  }
+  // if(!otherUsers){
+  //   return;
+  // }
 
   return (
     <div className="overflow-auto flex-1">

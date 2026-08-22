@@ -6,7 +6,7 @@ const isAuthenticated = async (req,res,next) => {
 
         if(!token){
             return res.status(401).json({
-                sucess: false,
+                success: false,
                 message: "Please login again!"
             });
         }
@@ -15,7 +15,7 @@ const isAuthenticated = async (req,res,next) => {
 
         if(!decode){
             return res.status(401).json({
-                sucess:false,
+                success:false,
                 message: "Invalid Token"
             });
         }
@@ -24,6 +24,7 @@ const isAuthenticated = async (req,res,next) => {
     }
     catch(error){
         console.log(error);
+        return res.status(401).json({ success: false, message: "Authentication failed" });
     }
 }
 

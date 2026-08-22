@@ -23,14 +23,15 @@ export const register = async (req, res) => {
     if (user) {
       return res.status(400).json({
         success: false,
-        message: "Username already exixts, try different username!",
+        message: "Username already exists, try different username!",
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const maleProfilePhoto = `https://avatarapi.runflare.run/public/boy?usearname=[${userName}]`;
-    const femaleProfilePhoto = `https://avatarapi.runflare.run/public/girl?usearname=[${userName}]`;
+    const maleProfilePhoto = `https://avatar.iran.liara.run/public/boy?username=${userName}`;
+    const femaleProfilePhoto = `https://avatar.iran.liara.run/public/girl?username=${userName}`;
+    
     await User.create({
       fullName,
       userName,
@@ -45,6 +46,7 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -82,15 +84,18 @@ export const login = async (req, res) => {
       expiresIn: "1d",
     });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     return res
       .status(200)
       .cookie("token", token, {
         maxAge: 1 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
       })
       .json({
-        sucess: true,
+        success: true,
         _id: user._id,
         userName: user.userName,
         fullName: user.fullName,
@@ -98,17 +103,28 @@ export const login = async (req, res) => {
       });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
 export const logout = (req, res) => {
   try {
-    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-      success: true,
-      message: "User logged out successfully!",
-    });
+    const isProduction = process.env.NODE_ENV === "production";
+    return res
+      .status(200)
+      .cookie("token", "", {
+        maxAge: 0,
+        httpOnly: true,
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
+      })
+      .json({
+        success: true,
+        message: "User logged out successfully!",
+      });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -120,5 +136,19 @@ export const getOtherUsers = async (req, res) => {
     return res.status(200).json(otherUsers);
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const getProfile = async(req,res) => {
+  try{
+    const loggedInUserId = req.id;
+    const currentUser = await User.findById({_id:loggedInUserId}).select("-password");
+
+    return res.status(200).json(currentUser);
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}

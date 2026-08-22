@@ -11,23 +11,30 @@ const SendInput = () => {
   const dispatch = useDispatch();
   const {messages} = useSelector(store=>store.message);
 
-  const onSubmitHandler = async (e)=>{
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
+    if (!message.trim()) return;
     try {
-      const res = await axios.post(`http://localhost:8080/api/v1/message/send/${selectedUser?._id}`,{message},
-        {headers:{
-          'Content-Type':'application/json'
-        },
-        withCredentials:true}
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const res = await axios.post(
+        `${apiUrl}/api/v1/message/send/${selectedUser?._id}`,
+        { message },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
       );
 
-      dispatch(setMessages([...messages, res?.data?.newMessage]))
-
+      if (res?.data?.newMessage) {
+        dispatch(setMessages([...(messages || []), res.data.newMessage]));
+      }
     } catch (error) {
       console.log(error);
     }
     setMessage("");
-  }
+  };
 
   return (
     <form onSubmit={onSubmitHandler} className="px-4 my-3">

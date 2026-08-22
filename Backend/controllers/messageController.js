@@ -1,5 +1,6 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
+import { io, getReceiverSocketId } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -27,15 +28,21 @@ export const sendMessage = async (req, res) => {
       gotConversation.messages.push(newMessage._id);
     }
 
-    await gotConversation.save();
+    await Promise.all([gotConversation.save(),newMessage.save()]);
 
     //SOCKET IO
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if(receiverSocketId){
+      io.to(receiverSocketId).emit("newMessage",newMessage);
+    }
     return res.status(200).json({
       success: true,
       newMessage
     });
+    
   } catch (err) {
     console.log(err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -51,5 +58,6 @@ export const getMessage = async (req, res) => {
     return res.status(200).json(conversation?.messages);
   } catch (err) {
     console.log(err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

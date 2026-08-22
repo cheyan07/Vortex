@@ -19,8 +19,9 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
       const res = await axios.post(
-        `http://localhost:8080/api/v1/user/login`,
+        `${apiUrl}/api/v1/user/login`,
         user,
         {
           headers: {
@@ -30,12 +31,10 @@ const Login = () => {
         },
       );
       
-        navigate("/");
-        console.log(res);
-        dispatch(setAuthUser(res.data));
-      
+      navigate("/");
+      dispatch(setAuthUser(res.data));
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
       console.log(error);
     }
 
@@ -85,7 +84,7 @@ const Login = () => {
             </Link>
           </p>
           <div>
-            <button type="submit" className="btn btn-block btn btn-info">
+            <button type="submit" className="btn btn-block  btn-info">
               Login
             </button>
           </div>
